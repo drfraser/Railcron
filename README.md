@@ -5,7 +5,7 @@ sources
 
 ODFetch currently only handles the fetch and archive step of getting the daily data (e.g. train timetables) that Network Rail publishes.
 
-The Prefect flows must be enhanced or additional ones created to perform subsequent Extraction, Transformation, and Loading processes
+The Prefect flows must be enhanced or additional ones created to perform subsequent ETL (Extraction, Transformation, Load) processes
 (e.g. into a database).
 
 ### Installation

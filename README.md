@@ -35,7 +35,7 @@ to be used, edit the 'rsync' command strings as needed. Most other settings do n
 
 You then have two choices:
 
-**YAML configuration file**
+**A. YAML configuration file**
 
 This method will use the YAML configuration file and have flows read it every time they are executed
 
@@ -49,7 +49,7 @@ Its default value is "." meaning the railcron.yml will be bundled with the deplo
 very useful because if the configuration settings need changed, the deployment will have to be stopped and recreated after
 updating the file. Using RAILCRON_CFG will avoid this hassle.
 
-**Prefect Blocks**
+**B. Prefect Blocks**
 
 This method will create Prefect Blocks out of the YAML configuration file and then settings can be edited through the Prefect UI.
 

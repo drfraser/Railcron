@@ -87,7 +87,7 @@ flows to not be explicitly coupled, but loosely coupled, as well as running on t
 single database (i.e. server 1 fetches files, server 2 with more CPUs processes the large ones).
 Refer to the function "update_newfile_block()" for more information.
 
-A flow can be standalone tested by running "python flows/<flow file.py> <name of flow>". Either a specific flow can be executed or
+A flow can be standalone tested by running "python flows/< flow file.py > < name of flow >". Either a specific flow can be executed or
 all of them, if "all" is specified. An orion.db database will be created which can be deleted to reset the state of the system.
 
 ### TODO

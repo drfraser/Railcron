@@ -22,7 +22,7 @@ from utils.misc import email_message
 # thus using RemoteFileSystem not straightforward compared to this function
 
 @flow(name="NR HDA Data", task_runner=SequentialTaskRunner())
-def hda_data():
+def hda_data(debugging=False):
     """Fetches new Historic Delay Attribution CSVs from NR website
        https://www.networkrail.co.uk/who-we-are/transparency-and-ethics/transparency/open-data-feeds/
 
@@ -55,8 +55,9 @@ def hda_data():
                 logger.info(f"Fetching {zip_name}")
                 data = hda.get_file(other_url=hda_node.nextSibling.firstChild.nodeValue, streaming=True)
                 zipfile = hda.archive_file(data, zip_name)
-                if zipfile.endswith(".zip") and hda.recompress:
-                    zipfile = tar_and_compress(hda.recompress, zipfile, unzip_file(zipfile))
+                if zipfile.endswith(".zip") and hda.settings.recompress:
+                    zipfile = tar_and_compress(hda.settings.recompress, zipfile, unzip_file(zipfile))
+            if debugging: break
 
         if zipfile is not None:
             logger.debug(exec_rsync(hda))
@@ -69,4 +70,4 @@ def hda_data():
 
 
 if __name__ == "__main__":
-    hda_data()
+    hda_data(debugging=True)

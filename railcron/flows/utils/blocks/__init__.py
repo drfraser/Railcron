@@ -9,6 +9,7 @@ from .hda import HdaBlock
 from .opendata import OpendataBlock
 from .nrdatafeeds import NrdatafeedsBlock, Nrdfs3Block
 from .a51 import A51Block
+from .railcron import RailcronBlock
 
 
 @sync_compatible
@@ -43,16 +44,19 @@ async def load_block(block_type, block_name):
 
        Args:
            block_type: Class of the block to load
-           block_name: Equivalent to master key in cfg file
+           block_name: Equivalent to master key in cfg file (== the flow name)
 
        Returns: new block for accessing data
     """
     new_block = None
     block_class = globals()[block_type.capitalize() + "Block"]
+    settings_cls = globals()["RailcronBlock"]
     try:
-        new_block = await block_class.load(block_name)
+        new_block = await block_class.load(block_name.replace('_', '-'))
+        settings = await settings_cls.load("settings")
+        new_block.settings = settings
     except ValueError:
-        cfg_path = os.getenv('FETCH_CFG', '.')
-        cfg = load_config(f"{cfg_path}/odfetch.yaml", block_name)
+        cfg = load_config(os.getenv('RAILCRON_CFG', '.') + "/railcron.yml", block_name)
         new_block = block_class(**cfg)
+        new_block.settings = settings_cls(**cfg['settings'])
     return new_block

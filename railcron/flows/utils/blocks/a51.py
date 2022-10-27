@@ -15,6 +15,7 @@
 import asyncio
 from functools import partial
 import os
+from typing_extensions import Literal
 
 from botocore import UNSIGNED
 from botocore.config import Config
@@ -22,7 +23,7 @@ from prefect import get_run_logger
 from prefect.blocks.core import Block
 from prefect_aws import AwsCredentials, AwsClientParameters
 from prefect_aws.s3 import s3_list_objects
-from pydantic import Field
+# from pydantic import Field, validator
 import requests
 
 from ..misc import get_current_ymd
@@ -46,16 +47,26 @@ class A51Block(Block):
         rsync: Command to backup the files with
     """
 
-    _block_type_name = "A51 NROD Archives"
-    _description = "Configuration data for getting files from A51 archives"
+    _block_type_name = "Network Rail - A51 Archives"
+    _description = "Block for getting files from A51's NROD archives: https://cdn.area51.onl/archive/rail/(darwin/trust/td)"
 
-    region: str = Field("eu-west-1", const=True)
+    region: Literal["eu-west-1"] = "eu-west-1"
     # data_url: str = "s3://cdn.area51.onl/archive/rail/"
-    bucket: str = Field("cdn.area51.onl", const=True)
-    key: str = Field("archive/rail/", regex="^archive/rail/(darwin|td|trust)/")
-    archive_path: str = None
+    bucket: Literal["cdn.area51.onl"] = "cdn.area51.onl"
+    key: Literal["archive/rail/darwin/","archive/rail/td/","archive/rail/trust/"] = "archive/rail/darwin/"
+    archive_path: str
     filetype: str = None
     rsync: str = None
+
+    # Pydantic's validation features not working with Prefect
+    # class Config:
+    #     validate_assignment = True
+
+    # @validator('key')
+    # def validate_s3_key(cls, val):
+    #     if val not in ['archive/rail/darwin/','archive/rail/td/','archiverail/trust/']:
+    #         raise ValueError('Key must be of the form "archive/rail/(darwin|td|trust)/"')
+    #     return val
 
     def get_filepath_prefix(self, year=None, mon=None, day=None):
         """Defines scheme by which files are organized under the archive_path"""

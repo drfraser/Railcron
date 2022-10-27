@@ -47,7 +47,7 @@ def flow_generator(fname):
                 logger.info("NOTICE: No change in file, so deleting today's")
                 os.unlink(filepath)
                 return
-            if nrdf.recompress:
+            if nrdf.settings.recompress:
                 filepath = recompress(nrdf, filepath)
             logger.debug(exec_rsync(nrdf))
 

@@ -11,7 +11,7 @@ CURRDIR=`pwd`
 # export PREFECT_LOGGING_SETTINGS_PATH="/tmp/logging.yml"
 
 # profile for testing - logging to console, temp orion.db
-prefect profile create dryrun
+# prefect profile create dryrun
 prefect profile use dryrun
 prefect config set PREFECT_LOGGING_LEVEL=INFO
 prefect config set PREFECT_LOGGING_SERVER_LEVEL=INFO

@@ -60,11 +60,12 @@ will read the configured YAML file and then register and create Blocks that can 
 to use these blocks before resorting to reading the YAML file. Currently, Prefect does not support validation of the configuration
 information in a Block, so do double check what is entered.
 
+The Prefect server process must first be running before using make_bloks.py
 
 ### Deployments
 
 Flows must first be instantiated before they can be executed. "make_deployments.sh" is a script that will create deployment files and
-save them into ./deplayments/. They then can be edited/updated as needed (e.g. to set the RAILCRON_CFG variable) before the deployment
+save them into ./deployments/. They then can be edited/updated as needed (e.g. to set the RAILCRON_CFG variable) before the deployment
 is applied to the Prefect database.
 
 **Read and edit the make_deployments.sh script before executing it**
@@ -86,6 +87,8 @@ flows to not be explicitly coupled, but loosely coupled, as well as running on t
 single database (i.e. server 1 fetches files, server 2 with more CPUs processes the large ones).
 Refer to the function "update_newfile_block()" for more information.
 
+A flow can be standalone tested by running "python flows/<flow file.py> <name of flow>". Either a specific flow can be executed or
+all of them, if "all" is specified. An orion.db database will be created which can be deleted to reset the state of the system.
 
 ### TODO
 

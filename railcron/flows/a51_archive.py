@@ -56,7 +56,7 @@ async def process_object(cfg, year, mon, filename):
     filepath_prefix = cfg.get_filepath_prefix(year, mon)
     filepath = archive_data_to_file(data, filepath_prefix, filename)
     # the tbz2 files are optimally compressed
-    if os.path.splitext(filename)[1] == ".gz" and cfg.recompress:
+    if os.path.splitext(filename)[1] == ".gz" and cfg.settings.recompress:
         filepath = await async_recompress(cfg, filepath)
     return filepath
 
@@ -125,5 +125,5 @@ if __name__ == "__main__":
             print(f"\n\n RUNNING {k}")
             asyncio.run(v())
     else:
-        asyncio.run(prefix_flows[argv[1]](year=2022, mon=10))
-        # asyncio.run(prefix_flows[argv[1]]())
+        # asyncio.run(prefix_flows[argv[1]](year=2022, mon=10))
+        asyncio.run(prefix_flows[argv[1]]())

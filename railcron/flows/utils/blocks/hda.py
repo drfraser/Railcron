@@ -1,6 +1,7 @@
 """Prefect Block for managing access to NR HDA data"""
 
 import os
+from typing_extensions import Literal
 
 from prefect import get_run_logger
 from prefect.blocks.core import Block
@@ -15,27 +16,28 @@ class HdaBlock(Block):
        Attributes:
            baseurl: URL of webpage where HDA files are (constant)
            url: Actual URL to access where XML section of HDA files is (constant)
-           params:  HTTP params to send in request (constant)
-             restype: container
-             comp: list
+           # params:  HTTP params to send in request when needed (constant)
+           #  restype: container
+           #  comp: list
            archive_path: Where to archive the files
            rsync: Command to execute rsync
     """
 
-    _block_type_name = "NR Historic Delay Attributes Files"
-    _description = "Configuration data for getting new HDA files"
+    _block_type_name = "Network Rail HDA Files"
+    _description = "Block for getting new Network Rail Historic Delay Attribution CSV files"
 
-    baseurl: str = Field("https://www.networkrail.co.uk/who-we-are/transparency-and-ethics/transparency/open-data-feeds/",
-                         const=True)
-    url: str = Field("https://sacuksprodnrdigital0001.blob.core.windows.net/historic-delay-attribution", const=True)
-    params: dict = Field({ 'restype': 'container', 'comp': 'list'}, const=True)
-    archive_path: str = None
+    __webpage__ = "https://www.networkrail.co.uk/who-we-are/transparency-and-ethics/transparency/open-data-feeds/"
+    baseurl: Literal[__webpage__] = __webpage__
+    __xmlpage__ = "https://sacuksprodnrdigital0001.blob.core.windows.net/historic-delay-attribution"
+    url: Literal[__xmlpage__] = __xmlpage__
+    # params: dict = {'restype': 'container', 'comp': 'list'}
+    archive_path: str
     rsync: str = None
 
     def get_file(self, other_url=None, streaming=False):
         """Downloads XML section of HDA CSVs or the zip file"""
         url = self.url if other_url is None else other_url
-        params = self.params if other_url is None else None
+        params = {'restype': 'container', 'comp': 'list'} if other_url is None else None
         resp = requests.get(url, params=params, stream=streaming)
         if resp.status_code not in (200, 201):
             logger = get_run_logger()

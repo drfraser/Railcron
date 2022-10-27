@@ -2,6 +2,7 @@
 Miscellaneous functions
 """
 from datetime import datetime, timedelta
+import os
 import yaml
 
 from prefect import flow, get_run_logger
@@ -9,17 +10,18 @@ from prefect_email import EmailServerCredentials, email_send_message, SMTPType
 from prefect_shell import shell_run_command
 
 ### loc of cfg file
-def create_flows(flow_generator, filters, config_file="./odfetch.yaml"):
+def create_flows(flow_generator, filters):
     """Dynamically create flows using calling module's flow generator function
 
        Args:
            flow_generator: Generator function that creates flows
-           filters: List of prefixes to search for in config file that define flows' parameters
-           config_file: File of flow configuration parameters
+           filters: List of prefixes to search for in blocks/config file that define flows' parameters
 
        Returns: dict of new Prefect flow functions
                 globals() also updated with new functions
     """
+    # read list of known blocks (names) and/or config file
+    config_file = os.getenv('RAILCRON_CFG', '.') + "/railcron.yml"
     with open(config_file, mode="rb") as file:
         config_data = yaml.safe_load(file)
     prefect_flows = {}
@@ -34,8 +36,9 @@ def load_config(config_file, root):
     """Reads YAML file of config settings such as username/password"""
     with open(config_file, mode="rb") as file:
         config_data = yaml.safe_load(file)
+        config_data[root]['settings'] = {}
         for k in config_data['settings'].keys():
-            config_data[root][k] = config_data['settings'][k]
+            config_data[root]['settings'][k] = config_data['settings'][k]
         for sec in ['nrdatafeeds', 'opendata']:
             for key in ['username', 'password']:
                 if key in config_data[root].keys():
@@ -71,32 +74,32 @@ def get_current_ymd(yesterday=False, strip_zeros=False):
 @flow
 def email_message(cfg, subject, msg):
     """Flow to send an email through localhost or specified mail server"""
-    if cfg.MAIL_FROM in (None, "") or cfg.MAIL_TO in (None, ""):
+    if cfg.settings.MAIL_FROM in (None, "") or cfg.settings.MAIL_TO in (None, ""):
         return ""
-    if cfg.MAIL_SRV in (None, "", "sendmail"):
-        parts = [[cfg.MAIL_CC, "-c ", ""],
-                 [cfg.MAIL_BCC, "-b ", ""],
-                 [cfg.MAIL_FROM, "-r ", ""]]
+    if cfg.settings.MAIL_SRV in (None, "", "sendmail"):
+        parts = [[cfg.settings.MAIL_CC, "-c ", ""],
+                 [cfg.settings.MAIL_BCC, "-b ", ""],
+                 [cfg.settings.MAIL_FROM, "-r ", ""]]
         for mailcc in parts:
             if mailcc[0]: mailcc[2] = mailcc[1] + mailcc[0]
-        cmd = f"echo \"{msg}\" | mail {parts[2][2]} -s \"{subject}\" {parts[0][2]} {parts[1][2]} \"{cfg.MAIL_TO}\" "
+        cmd = f"echo \"{msg}\" | mail {parts[2][2]} -s \"{subject}\" {parts[0][2]} {parts[1][2]} \"{cfg.settings.MAIL_TO}\" "
         output = shell_run_command(command=cmd, return_all=True)
     else:
         email_server_credentials = EmailServerCredentials(
-            username=cfg.MAIL_LOGIN.strip(),
-            password=cfg.MAIL_PWD.strip(),
-            smtp_server=cfg.MAIL_SRV.strip(),
-            smtp_type=getattr(SMTPType, cfg.MAIL_TYPE.strip()),
-            smtp_port=cfg.MAIL_PORT,
+            username=cfg.settings.MAIL_LOGIN.strip(),
+            password=cfg.settings.MAIL_PWD.strip(),
+            smtp_server=cfg.settings.MAIL_SRV.strip(),
+            smtp_type=getattr(SMTPType, cfg.settings.MAIL_TYPE.strip()),
+            smtp_port=cfg.settings.MAIL_PORT,
         )
         try:
             subject = email_send_message(
                 subject=subject,
                 msg=msg,
                 email_server_credentials=email_server_credentials,
-                email_to=cfg.MAIL_TO.strip(),
-                email_to_cc=(cfg.MAIL_CC.strip() if cfg.MAIL_CC else None),
-                email_to_bcc=(cfg.MAIL_BCC.strip() if cfg.MAIL_BCC else None),
+                email_to=cfg.settings.MAIL_TO.strip(),
+                email_to_cc=(cfg.settings.MAIL_CC.strip() if cfg.settings.MAIL_CC else None),
+                email_to_bcc=(cfg.settings.MAIL_BCC.strip() if cfg.settings.MAIL_BCC else None),
             )
         except Exception as exc:
             logger = get_run_logger()

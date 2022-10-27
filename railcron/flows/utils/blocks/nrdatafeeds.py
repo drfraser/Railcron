@@ -1,6 +1,6 @@
-"""Prefect Blocks for managing access to NR Datafeeds services"""
+"""Prefect Blocks for managing access to Network Rail Datafeeds services"""
 import os
-import pdb
+from typing_extensions import Literal
 
 from prefect import get_run_logger
 from prefect.blocks.core import Block
@@ -26,15 +26,15 @@ class NrdatafeedsBlock(Block):
            rsync: Command to use to backup files
     """
 
-    _block_type_name = "NR Datafeeds - Single files"
-    _description = "Configuration data for getting files from https://datafeeds.networkrail.co.uk/"
+    _block_type_name = "Network Rail Datafeeds Files"
+    _description = "Block for getting Network Rail files (SMART, TPS, schedules) from https://datafeeds.networkrail.co.uk/"
 
-    username: str = None
-    password: SecretStr = SecretStr("")
-    data_url: str = None
-    params: dict = None
-    archive_path: str = None
-    filetype: str = None
+    username: str
+    password: SecretStr
+    data_url: str
+    params: dict
+    archive_path: str
+    filetype: str
     rsync: str = None
 
     def get_filepath_prefix(self, year=None, mon=None, day=None):
@@ -84,19 +84,19 @@ class Nrdfs3Block(Block):
            rsync: Command to use to backup files
     """
 
-    _block_type_name = "NR Datafeeds - S3 based services"
-    _description = "Configuration data for getting files from NR Datafeeds S3 based servies"
+    _block_type_name = "NR Datafeeds (S3 based)"
+    _description = "Block for getting Network Rail's S3 based files (DARWIN logs, Location data)"
 
-    aws_access_key_id: str = None
-    aws_secret_access_key: SecretStr = SecretStr("")
-    region_name: str = None
+    aws_access_key_id: str
+    aws_secret_access_key: SecretStr
+    region_name: str
     # data_url: s3://nrdp-v16-logs/logs/{yyear}/{yyear}{ymon}/
-    bucket: str = None
-    key: str = Field(None, regex=".*/$")
-    date_in_key: bool = False  # true only for logs
-    archive_path: str = None
-    filetype: str = None
-    filter: str = None
+    bucket: str
+    key: str # = Field(None, regex=".*/$")
+    date_in_key: bool    # true only for logs
+    archive_path: str
+    filetype: str
+    filter: Literal["todays", "yesterdays"] = None
     rsync: str = None
 
     def get_filepath_prefix(self, year=None, mon=None, day=None):

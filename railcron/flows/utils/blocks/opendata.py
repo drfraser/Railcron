@@ -1,8 +1,9 @@
-"""Prefect Block for managing access to NR Opendata services"""
+"""Prefect Block for managing access to National Rail Opendata services"""
 
 import gzip
 import json
 import os
+from typing_extensions import Literal
 
 from prefect import get_run_logger
 from prefect.blocks.core import Block
@@ -13,7 +14,7 @@ from ..misc import get_current_ymd
 
 
 class OpendataBlock(Block):
-    """Block used to fetch files from Network Rail's Opendata service
+    """Block used to fetch files from National Rail's Opendata service
        Accounts can be managed through https://opendata.nationalrail.co.uk/
 
        Attributes:
@@ -26,16 +27,16 @@ class OpendataBlock(Block):
            filetype: Extension of the fetched file
     """
 
-    _block_type_name = "NR Opendata Files"
-    _description = "Configuration data for getting files from https://opendata.nationalrail.co.uk/"
+    _block_type_name = "National Rail OD Files"
+    _description = "Block for getting National Rail Open Data files from https://opendata.nationalrail.co.uk/"
 
-    username: str = None
-    password: SecretStr = SecretStr("")
-    auth_url: str = Field("https://opendata.nationalrail.co.uk/authenticate", const=True)
-    data_url: str = None
-    archive_path: str = None
+    username: str
+    password: SecretStr
+    auth_url: Literal["https://opendata.nationalrail.co.uk/authenticate"] = "https://opendata.nationalrail.co.uk/authenticate"
+    data_url: str
+    archive_path: str
+    filetype: str
     rsync: str = None
-    filetype: str = None
 
     # no get_filepath_prefix() defined because of need to do specific things when saving a file
 

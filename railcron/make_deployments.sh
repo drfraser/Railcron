@@ -3,6 +3,8 @@
 # Location of configuration file to use outside of built deployment package
 CFGLOC="/tmp"
 
+mkdir -p ./deployments
+
 if [ -z "$1" ] ; then
 
 prefect deployment build flows/opendata.py:atoc_timetable -n ATOC_TT -t daily -t ATOC -t timetable --output deployments/atoc.yaml
@@ -33,7 +35,7 @@ prefect deployment build flows/singlefile.py:sched_update_freight -n UPDATE_FREI
 
 cd deployments
 
-for x in *.yaml ; do sed -i "s# env: {}# env: {'FETCH_CFG': '$CFGLOC'}#" $x ; done
+for x in *.yaml ; do sed -i "s# env: {}# env: {'RAILCRON_CFG': '$CFGLOC'}#" $x ; done
 ## Could also use the Prefect UI to set schedules
 # for x in *.yaml ; do
 #  sed -i "s# schedule: {}# schedule: {'cron': '35 15 * * *', 'timezone': 'Europe/London', 'day_or': True} #" $x

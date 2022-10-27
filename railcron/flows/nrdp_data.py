@@ -68,7 +68,7 @@ def flow_generator(fname):
                 filepath_prefix = nrdf.get_filepath_prefix(year, mon, day)
                 filepath = archive_data_to_file(fdata, filepath_prefix, filename,
                                                 streaming=False)
-                if nrdf.recompress:
+                if nrdf.settings.recompress:
                     filepath = await async_recompress(nrdf, filepath)
 
             if filepath is not None:

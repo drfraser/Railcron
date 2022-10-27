@@ -28,8 +28,8 @@ def atoc_timetable():
         auth_data = opendata.authenticate()
         data = opendata.get_file(auth_data, streaming=True)
         filepath = opendata.archive_atoc(data)
-        if opendata.recompress:
-            filepath = tar_and_compress(opendata.recompress, filepath, unzip_file(filepath))
+        if opendata.settings.recompress:
+            filepath = tar_and_compress(opendata.settings.recompress, filepath, unzip_file(filepath))
         logger.debug(exec_rsync(opendata))
         logger.info(f"Flow atoc_timetable got new file: {filepath}")
         update_newfile_block("atoc", filepath)
@@ -50,7 +50,7 @@ def incidents():
         auth_data = opendata.authenticate()
         data = opendata.get_file(auth_data, streaming=False)
         filepath = opendata.archive_incidents(data, thehour)
-        if opendata.recompress:
+        if opendata.settings.recompress:
             filepath = recompress(opendata, filepath)
         logger.debug(exec_rsync(opendata))
         logger.info(f"Flow incidents got new file: {filepath}")

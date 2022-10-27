@@ -39,20 +39,20 @@ async def async_recompress(cfg, filepath):
 
        Returns: path to the new file
     """
-    if cfg.recompress not in compressions.keys():
+    if cfg.settings.recompress not in compressions.keys():
         raise Exception("Unsupported compression scheme")
     oldext = os.path.splitext(os.path.basename(filepath))[1]
     tool = compressions[oldext]
     dirpath = os.path.dirname(filepath)
     newname = os.path.splitext(os.path.basename(filepath))[0]
     if oldext == '.tbz2': newname += ".tar"
-    cmd = f"{tool} {filepath} ; {compressions[cfg.recompress][0]} {newname}"
+    cmd = f"{tool} {filepath} ; {compressions[cfg.settings.recompress][0]} {newname}"
     # handle when ext of original file does not need to be stripped off
     if cfg.filetype == '--':
-        cmd = f"{compressions[cfg.recompress][0]} {filepath}"
+        cmd = f"{compressions[cfg.settings.recompress][0]} {filepath}"
         newname = filepath
     await shell_run_command(command=cmd, helper_command=f"cd {dirpath}", return_all=True)
-    return os.path.join(dirpath, newname + compressions[cfg.recompress][1])
+    return os.path.join(dirpath, newname + compressions[cfg.settings.recompress][1])
 
 
 def recompress(cfg, filepath):
@@ -64,20 +64,20 @@ def recompress(cfg, filepath):
 
        Returns: path to the new file
     """
-    if cfg.recompress not in compressions.keys():
+    if cfg.settings.recompress not in compressions.keys():
         raise Exception("Unsupported compression scheme")
     oldext = os.path.splitext(os.path.basename(filepath))[1]
     tool = compressions[oldext]
     dirpath = os.path.dirname(filepath)
     newname = os.path.splitext(os.path.basename(filepath))[0]
     if oldext == '.tbz2': newname += ".tar"
-    cmd = f"{tool} {filepath} ; {compressions[cfg.recompress][0]} {newname}"
+    cmd = f"{tool} {filepath} ; {compressions[cfg.settings.recompress][0]} {newname}"
     # handle when ext of original file does not need to be stripped off
     if cfg.filetype == '--':
-        cmd = f"{compressions[cfg.recompress][0]} {filepath}"
+        cmd = f"{compressions[cfg.settings.recompress][0]} {filepath}"
         newname = filepath
     shell_run_command(command=cmd, helper_command=f"cd {dirpath}", return_all=True)
-    return os.path.join(dirpath, newname + compressions[cfg.recompress][1])
+    return os.path.join(dirpath, newname + compressions[cfg.settings.recompress][1])
 
 
 def unzip_file(zipfile):
@@ -166,10 +166,10 @@ def exec_rsync(cfg):
        Note: Directory first changed to that specified by 'archive_path'
     """
     output = "No rsync"
-    if cfg.BACKUP_HOST not in (None, ""):
+    if cfg.settings.BACKUP_HOST not in (None, ""):
         cyear, cmon, cday = get_current_ymd(yesterday=False)
         yyear, ymon, yday = get_current_ymd(yesterday=True)
-        cmd = cfg.rsync.replace("$BACKUP_HOST", cfg.BACKUP_HOST).replace("$BACKUP_ROOT", cfg.BACKUP_ROOT)
+        cmd = cfg.rsync.replace("$BACKUP_HOST", cfg.settings.BACKUP_HOST).replace("$BACKUP_ROOT", cfg.settings.BACKUP_ROOT)
         cmd  = cmd.replace("$cyear", cyear).replace("$cmon", cmon).replace("$cday", cday)
         cmd  = cmd.replace("$yyear", yyear).replace("$ymon", ymon).replace("$yday", yday)
         output = shell_run_command(command=cmd, helper_command=f"cd {cfg.archive_path}", return_all=True)

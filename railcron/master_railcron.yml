@@ -1,0 +1,364 @@
+# National Rail Data Portal - config for DARWIN feeds and static files like timetable, ticket info
+opendata:
+  username: <YOUR USERNAME>   # referred to by opendata__username
+  password: <YOUR PASSWORD>   # referred to by opendata__password
+  account_url: https://opendata.nationalrail.co.uk/
+
+# Network Rail Data Feeds - config site
+nrdatafeeds:
+  username: <YOUR USERNAME>   # referred to by nrdatafeeds__username
+  password: <YOUR PASSWORD>   # referred to by nrdatafeeds__password
+  account_url: https://datafeeds.networkrail.co.uk/ntrod/login
+
+settings:
+  # If original data is to be recompressed, e.g. zip or gzip to xz
+  # blank to disable, otherwise name of compression utility
+  # Maximum compression by default
+  # Only xz, gzip, bzip2, zstd supported 
+  recompress: xz
+  # rsync settings - set to blank to disable
+  BACKUP_HOST: # IP address or hostname
+  BACKUP_ROOT: # path to backup directory
+  # Set these to blank to disable all flow related emails
+  # if localhost used, e.g. ssmtp or msmtp
+  # then it must be configured to utilize 'mail' cmd
+  MAIL_FROM:
+  MAIL_TO:
+  MAIL_CC:
+  MAIL_BCC:
+  # Set these to send mail using a SMTP server
+  # set all to blank to disable
+  # all these settings must be defined otherwise
+  MAIL_LOGIN:
+  MAIL_PWD: 
+  MAIL_SRV: 
+  MAIL_TYPE:  # SSL, STARTTLS, or INSECURE
+  MAIL_PORT:
+
+
+### National Rail Data - Daily    .../year/mon/day/*
+
+# Files also available from https://data.atoc.org/
+atoc_timetable:
+  username: opendata__username
+  password: opendata__password
+  auth_url: https://opendata.nationalrail.co.uk/authenticate
+  data_url: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable
+  archive_path: # e.g. /tmp/network_rail/atoc_tt
+  rsync: cd .. ; rsync --ignore-existing -rRu atoc_tt $BACKUP_HOST:$BACKUP_ROOT/
+  filetype: zip   # files get converted to tar.xz
+
+# Stream of ongoing incidents
+incidents:
+  username: opendata__username
+  password: opendata__password
+  auth_url: https://opendata.nationalrail.co.uk/authenticate
+  data_url: https://opendata.nationalrail.co.uk/api/staticfeeds/5.0/incidents
+  archive_path: # e.g. /tmp/network_rail/incidents
+  rsync: cd .. ; rsync --ignore-existing -rRu incidents $BACKUP_HOST:$BACKUP_ROOT/
+  filetype: xml.gz
+
+### AWS Based Services   .../year/mon/*
+
+# s3 --profile darwin-tt cp s3://darwin.xmltimetable/PPTimetable/ . --exclude "*" --include "${cyear}${cmon}${cday}*.gz"
+nrdp_darwin_timetable:
+  aws_access_key_id: # your key from the 'Feeds' page of your
+  aws_secret_access_key: # account in the National Rail Data Portal 
+  region_name: eu-west-1
+  # data_url: s3://darwin.xmltimetable/PPTimetable/
+  bucket: darwin.xmltimetable
+  key: PPTimetable/
+  date_in_key: False
+  archive_path: # e.g. /tmp/network_rail/darwin-tt
+  filetype: gz
+  filter: todays  # ignore certain files
+  rsync: rsync -rRa --exclude "*.gz" ./$cyear/$cmon/ $BACKUP_HOST:$BACKUP_ROOT/darwin-tt/
+
+# cp s3://nrdp-v16-logs/mdm/ . --exclude "*" --include "*.csv" --include "*.sql" --exclude "*/*" --recursive
+nrdp_location:
+  aws_access_key_id: # need to search for the keys
+  aws_secret_access_key: # in the Open Rail Data message group
+  region_name: eu-west-1
+  # data_url: s3://nrdp-v16-logs/mdm/
+  bucket: nrdp-v16-logs
+  key: mdm/
+  date_in_key: False
+  archive_path: # e.g. /tmp/network_rail/mdm
+  filetype: --
+  rsync: rsync -rRa ./$cyear/$cmon/ $BACKUP_HOST:$BACKUP_ROOT/mdm/
+
+# cp s3://nrdp-v16-logs/reference/ . --exclude "*" --include "${yyear}${ymon}${yday}*.gz" --exclude "*/*" --recursive
+nrdp_ref:
+  aws_access_key_id: # need to search for the keys
+  aws_secret_access_key: # in the Open Rail Data message group
+  region_name: eu-west-1
+  # data_url: s3://nrdp-v16-logs/reference/
+  bucket: nrdp-v16-logs
+  key: reference/
+  date_in_key: False
+  archive_path: # e.g. /tmp/network_rail/reference
+  filetype: gz
+  filter: yesterdays
+  rsync: rsync -rRa ./$yyear/$ymon/ $BACKUP_HOST:$BACKUP_ROOT/reference/
+
+# cp s3://nrdp-v16-logs/timetable/ . --exclude "*" --include "${yyear}${ymon}${yday}*.gz" --exclude "*/*" --recursive
+nrdp_timetable:
+  aws_access_key_id: # need to search for the keys
+  aws_secret_access_key: # in the Open Rail Data message group
+  region_name: eu-west-1
+  # data_url: s3://nrdp-v16-logs/timetable/
+  bucket: nrdp-v16-logs
+  key: timetable/
+  date_in_key: False
+  archive_path: # e.g. /tmp/network_rail/timetable
+  filetype: xml.gz
+  filter: yesterdays
+  rsync: rsync -rRa ./$yyear/$ymon/ $BACKUP_HOST:$BACKUP_ROOT/timetable/
+
+# cp s3://nrdp-v16-logs/logs/${yyear}/${yyear}${ymon}/ . --exclude "*" --include "${yyear}${ymon}${yday}*.gz" --exclude "*/*" --recursive
+# multiple of form 2022/202207/202207210825001_PP.txt.gz
+nrdp_logs:
+  aws_access_key_id: # need to search for the keys
+  aws_secret_access_key: # in the Open Rail Data message group
+  region_name: eu-west-1
+  # data_url: s3://nrdp-v16-logs/logs/{yyear}/{yyear}{ymon}/
+  bucket: nrdp-v16-logs
+  key: logs/
+  date_in_key: True  # /{yyear}/{yyear}{ymon}/ attached
+  archive_path: # e.g. /tmp/network_rail/darwin-logs
+  filetype: txt.gz
+  filter: yesterdays
+  rsync: rsync -rRa ./$yyear/$ymon/ $BACKUP_HOST:$BACKUP_ROOT/darwin-logs/
+
+#### NOT WORKING - 403 errors access not allowed
+
+# one large list of past couple days of <date>_PP.log.gz files
+# form of 20220727092930_PP.log.gz
+#nrdp_darwin_direct:
+#  aws_access_key_id: # need to search for the keys
+#  aws_secret_access_key: # in the Open Rail Data message group
+#  region_name: eu-west-1
+#  data_url: s3://nrdp-v16-logs/darwin_direct/
+#  bucket: nrdp-v16-logs
+#  key: darwin_direct/
+#  date_in_key: False
+#  archive_path: # e.g. /tmp/network_rail/darwin_direct
+#  filetype: log.gz
+#  filter: todays
+
+# organized archive of <date>_PP.log.gz files
+# form of 20220727092930_PP.log.gz
+#nrdp_darwin_direct_archive:
+#  aws_access_key_id: # need to search for the keys
+#  aws_secret_access_key: # in the Open Rail Data message group
+#  region_name: eu-west-1
+#  data_url: s3://nrdp-v16-logs/darwin_direct_archive/{yyear}/{yyear}{ymon}/
+#  bucket: nrdp-v16-logs
+#  key: darwin_direct_archive/
+#  date_in_key: True
+#  archive_path: # e.g. /tmp/network_rail/darwin_direct_archive
+#  filetype: log.gz
+#  filter: todays
+
+# DARWIN FTP Account Info (from https://opendata.nationalrail.co.uk/feeds website)
+# to be done later
+#darwin_ftpsite:
+#  hostname: <YOUR ACCOUNT'S HOSTNAME>
+#  username: <YOUR ACCOUNT'S USERNAME>
+#  password: <YOUR ACCOUNT'S PASSWORD>
+#  directories:
+#    - pushport
+#    - snapshot
+
+
+## DAILY SINGLE FILE DATA   .../year/mon/day.gz
+# see https://wiki.openraildata.com/index.php?title=Reference_Data
+
+data_smart:
+  username: nrdatafeeds__username
+  password: nrdatafeeds__password
+  data_url: https://datafeeds.networkrail.co.uk/ntrod/SupportingFileAuthenticate
+  params:
+    type: SMART
+  archive_path: # e.g. /tmp/nrod/smart
+  filetype: json.gz
+  rsync: cd .. ; rsync --ignore-existing -rRu SMART $BACKUP_HOST:$BACKUP_ROOT/refdata/
+
+data_corpus:
+  username: nrdatafeeds__username
+  password: nrdatafeeds__password
+  data_url: https://datafeeds.networkrail.co.uk/ntrod/SupportingFileAuthenticate
+  params:
+    type: CORPUS
+  archive_path: # e.g. /tmp/nrod/corpus
+  filetype: json.gz
+  rsync: cd .. ; rsync --ignore-existing -rRu CORPUS $BACKUP_HOST:$BACKUP_ROOT/refdata/
+
+# BPLAN Data can be found at https://wiki.openraildata.com/index.php?title=BPLAN_Geography_Data
+
+data_tps:
+  username: nrdatafeeds__username
+  password: nrdatafeeds__password
+  data_url: https://datafeeds.networkrail.co.uk/ntrod/SupportingFileAuthenticate
+  params:
+    type: TPS
+  archive_path: # e.g. /tmp/nrod/tps
+  filetype: xml.tbz2
+  rsync: cd ..; rsync --ignore-existing -rRu TPS $BACKUP_HOST:$BACKUP_ROOT/refdata/
+
+# Daily CIF/JSON Planned Schedule files   .../year/mon/day.gz
+
+sched_full_cif:
+  username: nrdatafeeds__username
+  password: nrdatafeeds__password
+  data_url: https://datafeeds.networkrail.co.uk/ntrod/CifFileAuthenticate
+  params:
+    type: CIF_ALL_FULL_DAILY
+    day: toc-full.CIF.gz
+  archive_path: # e.g. /tmp/network_rail/schedule/cif
+  filetype: full.cif.gz
+  rsync: rsync --ignore-existing -rRu $cyear $BACKUP_HOST:$BACKUP_ROOT/schedule/cif/
+
+sched_update_cif:
+  username: nrdatafeeds__username
+  password: nrdatafeeds__password
+  data_url: https://datafeeds.networkrail.co.uk/ntrod/CifFileAuthenticate
+  params:
+    type: CIF_ALL_UPDATE_DAILY
+    day: toc-update-{theday}.CIF.gz
+  archive_path: # e.g. /tmp/network_rail/schedule/cif
+  filetype: update.cif.gz
+  rsync: rsync --ignore-existing -rRu $cyear $BACKUP_HOST:$BACKUP_ROOT/schedule/cif/
+
+sched_full_json:
+  username: nrdatafeeds__username
+  password: nrdatafeeds__password
+  data_url: https://datafeeds.networkrail.co.uk/ntrod/CifFileAuthenticate
+  params:
+    type: CIF_ALL_FULL_DAILY
+    day: toc-full
+  archive_path: # e.g. /tmp/network_rail/schedule/json
+  filetype: full.json.gz
+  rsync: rsync --ignore-existing -rRu $cyear $BACKUP_HOST:$BACKUP_ROOT/schedule/json/
+
+sched_update_json:
+  username: nrdatafeeds__username
+  password: nrdatafeeds__password
+  data_url: https://datafeeds.networkrail.co.uk/ntrod/CifFileAuthenticate
+  params:
+    type: CIF_ALL_UPDATE_DAILY
+    day: toc-update-{theday}
+  archive_path: # e.g. /tmp/network_rail/schedule/json
+  filetype: update.json.gz
+  rsync: rsync --ignore-existing -rRu $cyear $BACKUP_HOST:$BACKUP_ROOT/schedule/json/
+
+# example of using multiple accounts to get distinct groups of schedules
+# need 2nd, 3rd account etc to get the groups that are distinct from what 1st account
+# is getting, e.g. all schedules vs. just the freight schedules or one TOC per account
+# name as desired, change the params, but prefix must be 'sched_'
+sched_full_freight:
+  username: <OTHER DATAFEEDS ACCOUNT>
+  password: <OTHER DATAFEEDS ACCOUNT>
+  data_url: https://datafeeds.networkrail.co.uk/ntrod/CifFileAuthenticate
+  params:
+    type: CIF_FREIGHT_FULL_DAILY
+    day: toc-full
+  archive_path: # e.g. /tmp/network_rail/schedule/freight
+  filetype: full.json.gz
+  rsync: rsync --ignore-existing -rRu $cyear $BACKUP_HOST:$BACKUP_ROOT/schedule/freight/
+
+sched_update_freight:
+  username: <OTHER DATAFEEDS ACCOUNT>
+  password: <OTHER DATAFEEDS ACCOUNT>
+  data_url: https://datafeeds.networkrail.co.uk/ntrod/CifFileAuthenticate
+  params:
+    type: CIF_FREIGHT_UPDATE_DAILY
+    day: toc-update-{theday}
+  archive_path: # e.g. /tmp/network_rail/schedule/freight
+  filetype: update.json.gz
+  rsync: rsync --ignore-existing -rRu $cyear $BACKUP_HOST:$BACKUP_ROOT/schedule/freight/
+
+
+# public repos so can use wget/curl
+# indexing of A51 broken - have to manually explicitly get a file based on yr/mn/day path
+# sometimes its archive process too slow, files are not ready the very next day, have to refetch older files
+#  --- v16 XML files are not fetchable anymore given their naming convention isn't regular
+#   example url: https://cdn.area51.onl/archive/rail/darwin/$yyear2/$ymon2/$yday2.tbz2
+#                  **_ref_v?.xml.gz as well
+# aws --no-sign-request s3 ls s3://cdn.area51.onl/....
+# YESTERDAY'S FILE (day.tbz2) is fetched as A51 used as backup to own NR datafeeds collection
+
+a51_darwin:
+  region: eu-west-1
+  bucket: cdn.area51.onl
+  key: archive/rail/darwin/
+  archive_path: # e.g. /tmp/network_rail/darwin/a51
+  filetype: # blank to get both tbz2 or gz
+  rsync: rsync --ignore-existing -rRu $yyear $BACKUP_HOST:$BACKUP_ROOT/darwin/a51/
+
+a51_td:
+  region: eu-west-1
+  bucket: cdn.area51.onl
+  key: archive/rail/td/
+  archive_path: # e.g. /tmp/network_rail/td/a51
+  filetype:
+  rsync: rsync --ignore-existing -rRu $yyear $BACKUP_HOST:$BACKUP_ROOT/td/a51/
+
+a51_trust:
+  region: eu-west-1
+  bucket: cdn.area51.onl
+  key: archive/rail/trust/
+  archive_path: # e.g. /tmp/network_rail/trust/a51
+  filetype:
+  rsync: rsync --ignore-existing -rRu $yyear $BACKUP_HOST:$BACKUP_ROOT/trust/a51/
+
+
+## HISTORIC DELAY ATTRIBUTION data
+# process is get XML file of list of available CSVs, find any new links, download
+
+hda_data:
+  baseurl: https://www.networkrail.co.uk/who-we-are/transparency-and-ethics/transparency/open-data-feeds/
+  url: https://sacuksprodnrdigital0001.blob.core.windows.net/historic-delay-attribution
+  params:
+    restype: container
+    comp: list
+  archive_path: # e.g. /tmp/network_rail/hda/raw
+  rsync: cd .. ; rsync --ignore-existing -rRu raw $BACKUP_HOST:$BACKUP_ROOT/hda/
+
+
+# Reference information about Network Rail's real-time data feeds
+# these are AMQ based feeds of live data from Network Rail
+# not enabled yet
+
+#darwinfeed:
+#  username: <FROM OPENDATA ACCOUNT>
+#  password: <FROM OPENDATA ACCOUNT>
+#  feed_topic: darwin.pushport-v16
+#  status-msgs: darwin.status
+#  msg host: <FROM OPENDATA ACCOUNT>
+#  stomp: 61613
+#  openwire: 61616
+#  amq brokerURL: failover:(tcp://darwin-dist-44ae45.nationalrail.co.uk:61616)?
+#       jms.watchTopicAdvisories=false&amp;nested.wireFormat.maxInactivityDuration=28000&amp;
+#       initialReconnectDelay=5&amp;maxReconnectAttempts=2&amp;reconnectDelayExponent=1.5
+
+#nrdatafeed:
+#  username: nrdatafeeds__username
+#  password: nrdatafeeds__password
+#  amq brokerURL: failover:(tcp://approveddatafeeds.networkrail.co.uk:61619)?jms.useCompression=true&amp;
+#       jms.watchTopicAdvisories=false&amp;nested.wireFormat.maxInactivityDuration=29000&amp;
+#       initialReconnectDelay=4&amp;maxReconnectAttempts=4&amp;reconnectDelayExponent=2.5
+#
+#tdtopic:
+#  fromuri: ntrod:topic:TD_ALL_SIG_AREA?clientId=<YOUR CLIENT ID>&amp;durableSubscriptionName=<UNIQUE NAME>
+#
+#trusttopic:
+#  fromuri: ntrod:topic:TRAIN_MVT_ALL_TOC?clientId=<YOUR CLIENT ID>&amp;durableSubscriptionName=<UNIQUE NAME>
+#
+#tsrtopic:
+#  fromuri: ntrod:topic:TSR_ALL_ROUTE?clientId=<YOUR CLIENT ID>&amp;durableSubscriptionName=<UNIQUE NAME>
+#
+#vstptopic:
+#  fromuri: ntrod:topic:VSTP_ALL?clientId=<YOUR CLIENT ID>&amp;durableSubscriptionName=<UNIQUE NAME>
+
+

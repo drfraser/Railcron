@@ -6,7 +6,7 @@ well as nrdp-v16-logs related files (location, reference, logs)
 from NRDP's S3 repositories.
 """
 import asyncio
-from sys import argv, exc_info
+from sys import argv, exc_info, modules
 import traceback
 
 from prefect import flow, get_run_logger
@@ -87,6 +87,7 @@ def flow_generator(fname):
 
 
 prefix_flows = create_flows(flow_generator, ['nrdp_'])
+for k, v in prefix_flows.items(): setattr(modules[__name__], k, v)
 
 if __name__ == "__main__":
     if argv[1] == 'all':

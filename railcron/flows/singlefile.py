@@ -5,7 +5,7 @@ Generated Prefect Flows that fetch SMART/TPS/Corpus files as well as schedule
 related files from the https://datafeeds.networkrail.co.uk/ntrod/ website.
 """
 import os
-from sys import argv, exc_info
+from sys import argv, exc_info, modules
 import traceback
 
 from prefect import flow, get_run_logger
@@ -64,6 +64,8 @@ def flow_generator(fname):
 
 
 prefix_flows = create_flows(flow_generator, ['sched_', 'data_'])
+for k, v in prefix_flows.items(): setattr(modules[__name__], k, v)
+
 
 if __name__ == "__main__":
     if argv[1] == 'all':

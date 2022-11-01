@@ -28,7 +28,6 @@ def create_flows(flow_generator, filters):
     flow_names = [x for prefix in filters for x in config_data.keys() if x.startswith(prefix)]
     for fname in flow_names:
         prefect_flows[fname] = flow_generator(fname)
-        globals()[fname] = prefect_flows[fname]
     return prefect_flows
 
 

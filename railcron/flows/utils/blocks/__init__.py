@@ -39,6 +39,25 @@ async def update_newfile_block(flow_tag, newfile):
 
 
 @sync_compatible
+async def newfile_present(flow_tag):
+    """Determines if the specified flow-block indicates a new file has been received
+
+       Args:
+           flow_tag: The name of the semaphore
+
+       Returns: path of the new file or None
+    """
+    newfile = None
+    try:
+        newfile = await Block.load(f"json/{flow_tag}-lastfile".replace('_','-'))
+    except ValueError:
+        raise Exception(f"Block json/{flow_tag}-lastfile not found")
+    if newfile.value["oldfile"] == newfile.value["newfile"]:
+        return False
+    return newfile.value["newfile"]
+
+
+@sync_compatible
 async def load_block(block_type, block_name):
     """Gets the specified block from storage or dynamically makes one based on the config file
 

@@ -107,10 +107,11 @@ def flow_generator(fname):
                 if output: logger.debug(output)
                 logger.info(f"Flow {fname} got new file: {filepath}")
                 await update_newfile_block(fname, filepath)
-        except Exception:
+        except Exception as err:
             msg = '<br/>'.join(traceback.format_exception(*exc_info()))
             logger.error(msg)
             email_message(a51, f"Error in Prefect Flow {fname}", msg)
+            raise err
 
     infunc.__name__ = fname
     return flow(infunc, name=f"{fname}",

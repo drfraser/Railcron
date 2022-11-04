@@ -63,10 +63,11 @@ def hda_data(debugging=False):
             logger.debug(exec_rsync(hda))
             logger.info(f"Flow hda_data got new file: {zipfile}")
             update_newfile_block("hda_data", zipfile)
-    except Exception:
+    except Exception as err:
         msg = '<br/>'.join(traceback.format_exception(*exc_info()))
         logger.error(msg)
         email_message(hda, "Error in Prefect Flow hda_data", msg)
+        raise err
 
 
 if __name__ == "__main__":

@@ -33,10 +33,11 @@ def atoc_timetable():
         logger.debug(exec_rsync(opendata))
         logger.info(f"Flow atoc_timetable got new file: {filepath}")
         update_newfile_block("atoc", filepath)
-    except Exception:
+    except Exception as err:
         msg = '<br/>'.join(traceback.format_exception(*exc_info()))
         logger.error(msg)
         email_message(opendata, "Error in Prefect Flow atoc_timetable", msg)
+        raise err
 
 
 @flow(task_runner=SequentialTaskRunner())
@@ -55,10 +56,11 @@ def incidents():
         logger.debug(exec_rsync(opendata))
         logger.info(f"Flow incidents got new file: {filepath}")
         update_newfile_block("incidents", filepath)
-    except Exception:
+    except Exception as err:
         msg = '<br/>'.join(traceback.format_exception(*exc_info()))
         logger.error(msg)
         email_message(opendata, "Error in Prefect Flow incidents", msg)
+        raise err
 
 
 if __name__ == "__main__":

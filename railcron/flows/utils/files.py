@@ -165,7 +165,7 @@ def exec_rsync(cfg):
 
        Note: Directory first changed to that specified by 'archive_path'
     """
-    output = "No rsync"
+    output = None
     if cfg.settings.BACKUP_HOST not in (None, ""):
         cyear, cmon, cday = get_current_ymd(yesterday=False)
         yyear, ymon, yday = get_current_ymd(yesterday=True)

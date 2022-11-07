@@ -12,6 +12,7 @@ from shutil import rmtree
 from tempfile import mkdtemp
 
 from prefect_shell import shell_run_command
+from prefect.utilities.asyncutils import sync_compatible
 
 from .misc import get_current_ymd
 
@@ -166,7 +167,8 @@ def file_changed(fname, filepath, file_hash):
     return False
 
 
-def exec_rsync(cfg):
+@sync_compatible
+async def exec_rsync(cfg):
     """Executes the rsync command in the supplied cfg Block
 
        Templated variables in rsync command updated based on the date:
@@ -182,5 +184,5 @@ def exec_rsync(cfg):
         cmd = cfg.rsync.replace("$BACKUP_HOST", cfg.settings.BACKUP_HOST).replace("$BACKUP_ROOT", cfg.settings.BACKUP_ROOT)
         cmd  = cmd.replace("$cyear", cyear).replace("$cmon", cmon).replace("$cday", cday)
         cmd  = cmd.replace("$yyear", yyear).replace("$ymon", ymon).replace("$yday", yday)
-        output = shell_run_command(command=cmd, helper_command=f"cd {cfg.archive_path}", return_all=True)
+        output = await shell_run_command(command=cmd, helper_command=f"cd {cfg.archive_path}", return_all=True)
     return output

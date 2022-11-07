@@ -103,7 +103,7 @@ def flow_generator(fname):
             if filepath is None:
                 logger.error(f"NOTICE: A51 file for {fname} {year}-{mon} not present, no fetch")
             else:
-                output = await exec_rsync(a51)
+                output = exec_rsync(a51)
                 if output: logger.debug(output)
                 logger.info(f"Flow {fname} got new file: {filepath}")
                 await update_newfile_block(fname, filepath)

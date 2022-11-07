@@ -72,7 +72,7 @@ def flow_generator(fname):
                     filepath = await async_recompress(nrdf, filepath)
 
             if filepath is not None:
-                output = await exec_rsync(nrdf)
+                output = exec_rsync(nrdf)
                 if output: logger.debug(output)
                 logger.info(f"Flow {fname} got new file: {filepath}")
                 await update_newfile_block(fname, filepath)

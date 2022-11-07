@@ -42,15 +42,20 @@ async def async_recompress(cfg, filepath):
     if cfg.settings.recompress not in compressions.keys():
         raise Exception("Unsupported compression scheme")
     oldext = os.path.splitext(os.path.basename(filepath))[1]
-    tool = compressions[oldext]
     dirpath = os.path.dirname(filepath)
     newname = os.path.splitext(os.path.basename(filepath))[0]
-    if oldext == '.tbz2': newname += ".tar"
-    cmd = f"{tool} {filepath} ; {compressions[cfg.settings.recompress][0]} {newname}"
-    # handle when ext of original file does not need to be stripped off
-    if cfg.filetype == '--':
-        cmd = f"{compressions[cfg.settings.recompress][0]} {filepath}"
+    if oldext in compressions.keys():
+        tool = compressions[oldext]
+        if oldext == '.tbz2': newname += ".tar"
+        cmd = f"{tool} {filepath} ; {compressions[cfg.settings.recompress][0]} {newname}"
+        # handle when ext of original file does not need to be stripped off
+        if cfg.filetype == '--':
+            cmd = f"{compressions[cfg.settings.recompress][0]} {filepath}"
+            newname = filepath
+    else:
+        # original file is not recognized as being compressed
         newname = filepath
+        cmd = f"{compressions[cfg.settings.recompress][0]} {newname}"
     await shell_run_command(command=cmd, helper_command=f"cd {dirpath}", return_all=True)
     return os.path.join(dirpath, newname + compressions[cfg.settings.recompress][1])
 
@@ -67,15 +72,20 @@ def recompress(cfg, filepath):
     if cfg.settings.recompress not in compressions.keys():
         raise Exception("Unsupported compression scheme")
     oldext = os.path.splitext(os.path.basename(filepath))[1]
-    tool = compressions[oldext]
     dirpath = os.path.dirname(filepath)
     newname = os.path.splitext(os.path.basename(filepath))[0]
-    if oldext == '.tbz2': newname += ".tar"
-    cmd = f"{tool} {filepath} ; {compressions[cfg.settings.recompress][0]} {newname}"
-    # handle when ext of original file does not need to be stripped off
-    if cfg.filetype == '--':
-        cmd = f"{compressions[cfg.settings.recompress][0]} {filepath}"
+    if oldext in compressions.keys():
+        tool = compressions[oldext]
+        if oldext == '.tbz2': newname += ".tar"
+        cmd = f"{tool} {filepath} ; {compressions[cfg.settings.recompress][0]} {newname}"
+        # handle when ext of original file does not need to be stripped off
+        if cfg.filetype == '--':
+            cmd = f"{compressions[cfg.settings.recompress][0]} {filepath}"
+            newname = filepath
+    else:
+        # original file is not recognized as being compressed
         newname = filepath
+        cmd = f"{compressions[cfg.settings.recompress][0]} {newname}"
     shell_run_command(command=cmd, helper_command=f"cd {dirpath}", return_all=True)
     return os.path.join(dirpath, newname + compressions[cfg.settings.recompress][1])
 

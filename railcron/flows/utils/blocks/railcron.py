@@ -5,7 +5,7 @@ from typing_extensions import Literal  #, TypedDict
 
 from prefect.blocks.core import Block
 # from prefect.blocks.system import JSON
-from pydantic import SecretStr
+# from pydantic import SecretStr
 
 
 # Using this to deal with Pydantic/Prefect UI issues would be too fine-grained
@@ -19,7 +19,7 @@ from pydantic import SecretStr
 #     MAIL_CC: Optional[str]
 #     MAIL_BCC: Optional[str]
 #     MAIL_LOGIN: Optional[str]
-#     MAIL_PWD: SecretStr = None
+#     MAIL_PWD: Optional[str] = None  # issue if SecretStr - not useful really either
 #     MAIL_SRV: Optional[str]
 #     MAIL_TYPE: Literal['SSL','STARTTLS','INSECURE'] = None
 #     MAIL_PORT: Optional[int]
@@ -60,7 +60,7 @@ class RailcronBlock(Block):
     MAIL_CC: Optional[str]
     MAIL_BCC: Optional[str]
     MAIL_LOGIN: Optional[str]
-    MAIL_PWD: Optional[SecretStr] = SecretStr("")
+    MAIL_PWD: Optional[str]
     MAIL_SRV: Optional[str]
     MAIL_TYPE: Literal['SSL','STARTTLS','INSECURE'] = None
     MAIL_PORT: Optional[int]

@@ -16,7 +16,7 @@ from prefect import flow, get_run_logger
 from prefect.task_runners import SequentialTaskRunner
 
 from utils.blocks import load_block, update_newfile_block
-from utils.files import archive_data_to_file, async_recompress, exec_rsync
+from utils.files import archive_data_to_file, async_recompress, async_exec_rsync
 from utils.misc import create_flows, get_current_ymd, email_message
 
 # did not use S3 file system block because it is just a thin wrapper around s3fs
@@ -103,7 +103,7 @@ def flow_generator(fname):
             if filepath is None:
                 logger.error(f"NOTICE: A51 file for {fname} {year}-{mon} not present, no fetch")
             else:
-                output = await exec_rsync(a51)
+                output = await async_exec_rsync(a51)
                 if output: logger.debug(output)
                 logger.info(f"Flow {fname} got new file: {filepath}")
                 await update_newfile_block(fname, filepath)

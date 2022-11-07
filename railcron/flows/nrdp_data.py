@@ -14,7 +14,7 @@ from prefect.task_runners import SequentialTaskRunner
 from prefect_aws.s3 import s3_download, s3_list_objects
 
 from utils.blocks import load_block, update_newfile_block
-from utils.files import archive_data_to_file, async_recompress, exec_rsync
+from utils.files import archive_data_to_file, async_recompress, async_exec_rsync
 from utils.misc import get_current_ymd, create_flows, email_message
 
 # S3 objects in lists
@@ -72,7 +72,7 @@ def flow_generator(fname):
                     filepath = await async_recompress(nrdf, filepath)
 
             if filepath is not None:
-                output = await exec_rsync(nrdf)
+                output = await async_exec_rsync(nrdf)
                 if output: logger.debug(output)
                 logger.info(f"Flow {fname} got new file: {filepath}")
                 await update_newfile_block(fname, filepath)

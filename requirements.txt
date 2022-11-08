@@ -17,7 +17,7 @@ botocore
 cachetools
 certifi
 cffi
-charset-normalizer
+charset-normalizer<3.0,>=2.0
 click
 cloudpickle
 commonmark
@@ -60,7 +60,7 @@ prefect-aws
 prefect-email
 prefect-shell
 protobuf
-py4j
+py4j==0.10.9.5
 pyasn1
 pyasn1-modules
 pycparser
@@ -84,7 +84,7 @@ six
 slack-sdk
 sniffio
 SQLAlchemy
-starlette==0.19.1
+starlette==0.20.4
 text-unidecode
 toml
 typer

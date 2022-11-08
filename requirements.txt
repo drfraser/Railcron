@@ -39,7 +39,7 @@ greenlet
 griffe==0.21.0
 h11==0.12.0
 httpcore
-httpx
+httpx[http2]
 idna
 importlib-metadata
 importlib-resources

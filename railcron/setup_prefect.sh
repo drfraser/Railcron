@@ -24,6 +24,9 @@ prefect config set PREFECT_LOGGING_SERVER_LEVEL=WARNING
 prefect config set PREFECT_LOGGING_SETTINGS_PATH="$CURRDIR/logging.yml"
 prefect config set PREFECT_ORION_DATABASE_CONNECTION_URL="sqlite+aiosqlite:///$CURRDIR/orion.db"
 prefect config set PREFECT_ORION_API_HOST=0.0.0.0   # `hostname -I | awk '{print $1}'`
+# want to explicitly set this to make sure server API not 'ephemeral' but hosted
+HOST=`hostname -I | awk '{print $1}'`
+prefect config set PREFECT_API_URL="http://$HOST:4200/api"
 
 # To start an instance of Prefect
 

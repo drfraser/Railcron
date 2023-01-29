@@ -40,8 +40,8 @@ def flow_generator(fname):
             # file or yesterday's as determined by the filter set in the Block
             if nrdf.date_in_key:
                 # have to worry about subdirectories?
-                mons = int(mon)
-                prefi += f"{year}/{year}{mons:0d}/"
+                mons = str(mon) if int(mon) > 9 else "0" + str(int(mon))
+                prefi += f"{year}/{year}{mons}/"
 
             objects = await s3_list_objects(bucket=nrdf.bucket,
                                             aws_credentials=aws_creds,
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     if argv[1] == 'all':
         for k, v in prefix_flows.items():
             # testing nrdp_logs involves many files
-            if 'logs' in k: continue
+            # if 'logs' in k: continue
             print(f"\n\n RUNNING {k}")
             asyncio.run(v())
     else:

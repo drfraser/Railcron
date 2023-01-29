@@ -72,6 +72,7 @@ class A51Block(Block):
         """Defines scheme by which files are organized under the archive_path"""
         if year is None:
             year, mon, _ = get_current_ymd(yesterday=True, strip_zeros=False)
+        if int(mon) < 10: mon = "0" + str(mon)
         return os.path.join(self.archive_path, str(year), str(mon))
 
     async def get_https_s3_file(self, year, mon, fname, streaming=True):
